@@ -1,5 +1,9 @@
 package edu.abc.raunjianbei.createdata;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Random;
@@ -10,21 +14,13 @@ public class T_CORP_STOCK {
 	private int ORG;
 	private int ID;//同一个公司不一样
 	private int SEQ_ID;
-	private String STOCK_TYPE="自然人";
-	private String COUNTRY;
-	private String CERTIFICATE_TYPE="身份证";
-	private String CERTIFICATE_NO;
 	private String STOCK_NAME=null;
-	private String STOCK_CAPI_TYPE="人名币";
-	private int STOCK_CAPI;
-	private float STOCK_CAPI_DOLLAR;
 	private float STOCK_CAPI_RMB;
-	private String STOCK_PERCENT;
 	private float STOCK_RATE_RMB=1.0f;
 	private float STOCK_RATE_DOLLAR=0.1579f;
-	private String CREATE_DATE;
 	
 	public T_CORP_STOCK() {
+		
 		int temp=0;//每个公司有多少股东
 		int o=0;
 		int m;
@@ -37,113 +33,132 @@ public class T_CORP_STOCK {
 		ArrayList<T_CORP_STOCKBean> touGuRens=new ArrayList<>();
 		
 		
-		for(int i=0;i<125;i++)//省份
+		for(int i=0;i<1;i++)//省份
 		{	
 			float renjiaozonge=0;
 			String yue=null;
 			String ri=null;
 			Random random=new Random();
 			
-			ORG=876+i;
+			ORG=876+i;//主键机关代码
 			
-			int number=random.nextInt(20);
-	//		System.out.println("股东:"+number);
-			for(int index=0;index<number;index++) {//同一个公司
-				//建立一个股东
-				T_CORP_STOCKBean touGuRen=new T_CORP_STOCKBean();
+			int companynum=random.nextInt(10);
+			for(int j=0;j<companynum;j++) {//控制每个地区公司个数
+				//主键公司序号
+				SEQ_ID=j+1;
 				
-				SEQ_ID=i+1;
-				ID=index+10000;
-				touGuRen.setORG(ORG);
-				touGuRen.setID(ID);
-				touGuRen.setSEQ_ID(SEQ_ID);
-				touGuRen.setSTOCK_TYPE("自然人");
-				touGuRen.setCERTIFICATE_TYPE("身份证");
-				touGuRen.setSTOCK_CAPI_TYPE("人民币");
+				int number=random.nextInt(10);//控制股东个数
+				for(int index=0;index<number;index++) {//同一个公司
+					//建立一个股东
+					T_CORP_STOCKBean touGuRen=new T_CORP_STOCKBean();
+					//主键股东序号
+					ID=index+1000;
+					touGuRen.setORG(ORG);
+					touGuRen.setID(ID);
+					touGuRen.setSEQ_ID(SEQ_ID);
+					touGuRen.setSTOCK_TYPE("自然人");
+					touGuRen.setCERTIFICATE_TYPE("身份证");
+					touGuRen.setSTOCK_CAPI_TYPE("人民币");
 				
-				
-				//国家
-				int n=random.nextInt(country.length);
-				touGuRen.setCOUNTRY(country[n]);
-		//		System.out.println("国家:"+country[n]);
-				//名字
-				int x=random.nextInt(firstname.length);
-				int y=random.nextInt(lastname1.length);
-				int z=random.nextInt(lastname2.length);
-				STOCK_NAME=firstname[x]+lastname1[y]+lastname2[z];
-				touGuRen.setSTOCK_NAME(STOCK_NAME);
-		//		System.out.println(STOCK_NAME);
+					//国家
+					int n=random.nextInt(country.length);
+					touGuRen.setCOUNTRY(country[n]);
+
+					//名字
+					int x=random.nextInt(firstname.length);
+					int y=random.nextInt(lastname1.length);
+					int z=random.nextInt(lastname2.length);
+					STOCK_NAME=firstname[x]+lastname1[y]+lastname2[z];
+					touGuRen.setSTOCK_NAME(STOCK_NAME);
 			
-				//身份证号
-				int s1=(int)((Math.random()*9+1)*100000);
-				int s2=random.nextInt(80)+1918;				
-				int s3=random.nextInt(12)+1;
-				int s4=random.nextInt(28)+1;
-				int s6=random.nextInt(80)+1880;//公司成立年份
-				int s7=random.nextInt(24);//公司成立小时
-				int s8=random.nextInt(60);//公司成立分
-				if(s3<10) {
-					yue="0"+s3;
-				}else {
-					yue=""+s3;
-				}
-				if(s4<10) {
-					ri="0"+s4;
-				}else {
-					ri=""+s4;
-				}
-				int s5=Math.round((random.nextFloat()+1)*1000);
-				String shenfenzheng=""+s1+s2+yue+ri+s5;
-				String shijian=""+s6+"/"+yue+"/"+ri+" "+s7+":"+s8;
-				touGuRen.setCREATE_DATE(shijian);
-				touGuRen.setCERTIFICATE_NO(shenfenzheng);
-		//		System.out.println(shenfenzheng);
+					//身份证号
+					int s1=(int)((Math.random()*9+1)*100000);
+					int s2=random.nextInt(80)+1918;				
+					int s3=random.nextInt(12)+1;
+					int s4=random.nextInt(28)+1;
 				
-				//股东认缴
-				int renjiaoe=random.nextInt(500)+20;
-		//		System.out.println(renjiaoe*0.1579);
-		//		float renjiaoedollor=(float)(Math.round(renjiaoe*0.1579*100)/100);
-				DecimalFormat   fnum  =   new  DecimalFormat("#.00");    
-				String   dd=fnum.format(renjiaoe*0.1579);
-				float renjiaoedollor=Float.parseFloat(dd);
-				touGuRen.setSTOCK_RATE_RMB(STOCK_RATE_RMB);
-				touGuRen.setSTOCK_RATE_DOLLAR(STOCK_RATE_DOLLAR);
-				touGuRen.setSTOCK_CAPI(renjiaoe*1.0f);
-		//		System.out.println("股份人民币："+touGuRen.getSTOCK_CAPI());
-				touGuRen.setSTOCK_CAPI_DOLLAR(renjiaoedollor);
-				STOCK_CAPI_RMB=renjiaoe*STOCK_RATE_RMB;
-				touGuRen.setSTOCK_CAPI_RMB(STOCK_CAPI_RMB);
-				touGuRens.add(touGuRen);
+					int s6=random.nextInt(80)+1880;//公司成立年份
+					int s7=random.nextInt(24);//公司成立小时
+					int s8=random.nextInt(60);//公司成立分
+					if(s3<10) {
+						yue="0"+s3;
+					}else {
+						yue=""+s3;
+					}
+					if(s4<10) {
+						ri="0"+s4;
+					}else {
+						ri=""+s4;
+					}
+					int s5=Math.round((random.nextFloat()+1)*1000);
+				
+					String shenfenzheng=""+s1+s2+yue+ri+s5;
+					String shijian=""+s6+"/"+yue+"/"+ri+" "+s7+":"+s8;
+					touGuRen.setCREATE_DATE(shijian);
+					touGuRen.setCERTIFICATE_NO(shenfenzheng);
+				
+					//股东认缴
+					int renjiaoe=random.nextInt(500)+20;
+					//保留两位小数
+					DecimalFormat   fnum  =   new  DecimalFormat("#.00");    
+					String   dd=fnum.format(renjiaoe*0.1579);
+					float renjiaoedollor=Float.parseFloat(dd);
+				
+					touGuRen.setSTOCK_RATE_RMB(STOCK_RATE_RMB);
+					touGuRen.setSTOCK_RATE_DOLLAR(STOCK_RATE_DOLLAR);
+					touGuRen.setSTOCK_CAPI(renjiaoe*1.0f);
+					//System.out.println("股份人民币："+touGuRen.getSTOCK_CAPI());
+					touGuRen.setSTOCK_CAPI_DOLLAR(renjiaoedollor);
+				
+					STOCK_CAPI_RMB=renjiaoe*STOCK_RATE_RMB;
+					touGuRen.setSTOCK_CAPI_RMB(STOCK_CAPI_RMB);
+					touGuRens.add(touGuRen);
 								
-		//		System.out.println(renjiaoedollor);
-				renjiaozonge=renjiaozonge+renjiaoe;
-			}
-	//		System.out.println("总额"+renjiaozonge);
-	//		System.out.println("股东:"+number);
-	//		System.out.println("temp"+temp);
-	//		System.out.println("number"+number);
-			for(m=temp,o=0;o<number;m++,o++)
-			{
-				T_CORP_STOCKBean t=touGuRens.get(m);
-				float bili=t.getSTOCK_CAPI()/renjiaozonge;
-		//		System.out.println("循环股份"+t.getSTOCK_CAPI());
-		//		System.out.println("比例"+bili);
-				
-				DecimalFormat   fnum  =   new  DecimalFormat("#0.00");
-				String dd=fnum.format(bili*100);
-				
-				t.setSTOCK_PERCENT(dd+"%");
-	//			System.out.println("转化为百分比:"+t.getSTOCK_PERCENT());
-			}
-			temp=number+temp;
+					renjiaozonge=renjiaozonge+renjiaoe;
+				}
 			
-	//		System.out.println("----------------------------------------------");
+				//		System.out.println("总额"+renjiaozonge);
+				//		System.out.println("股东:"+number);
+				//		System.out.println("temp"+temp);
+				//		System.out.println("number"+number);
+				for(m=temp,o=0;o<number;m++,o++)
+				{
+					T_CORP_STOCKBean t=touGuRens.get(m);
+					float bili=t.getSTOCK_CAPI()/renjiaozonge;
+					//System.out.println("循环股份"+t.getSTOCK_CAPI());
+					//System.out.println("比例"+bili);
+				
+					DecimalFormat   fnum  =   new  DecimalFormat("#0.00");
+					String dd=fnum.format(bili*100);
+				
+					t.setSTOCK_PERCENT(dd+"%");
+					//System.out.println("转化为百分比:"+t.getSTOCK_PERCENT());
+				}
+				temp=number+temp;
+				
+			}
+			
 		}
 //		System.out.println(touGuRens.size());
+		
+		//将文本输出到本地
+		File fout = new File("E:\\file\\data\\T_CORP_STOCK_DATA.txt");
+		FileOutputStream fos;
+		try {
+			fos = new FileOutputStream(fout);
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
 		for(T_CORP_STOCKBean t:touGuRens)
 		{
-			System.out.print("insert into T_CORP_STOCK values( ");
-			System.out.println(t.getORG()+", "+t.getID()+", "+t.getSEQ_ID()+", "+"'"+t.getSTOCK_TYPE()+"', "+"'"+t.getCOUNTRY()+"', "+"'"+t.getCERTIFICATE_TYPE()+"', "+"'"+t.getCERTIFICATE_NO()+"', "+"'"+t.getSTOCK_NAME()+"', "+"'"+t.getSTOCK_CAPI_TYPE()+"', "+t.getSTOCK_CAPI()+", "+t.getSTOCK_CAPI_DOLLAR()+", "+t.getSTOCK_CAPI_RMB()+", "+"'"+t.getSTOCK_PERCENT()+"', "+t.getSTOCK_RATE_RMB()+", "+t.getSTOCK_RATE_DOLLAR()+", "+"to_date('"+t.getCREATE_DATE()+"','yyyy-mm-dd hh24:mi')); ");
+			String sql="insert into T_CORP_STOCK values("+t.getORG()+", "+t.getID()+", "+t.getSEQ_ID()+", "+"'"+t.getSTOCK_TYPE()+"', "+"'"+t.getCOUNTRY()+"', "+"'"+t.getCERTIFICATE_TYPE()+"', "+"'"+t.getCERTIFICATE_NO()+"', "+"'"+t.getSTOCK_NAME()+"', "+"'"+t.getSTOCK_CAPI_TYPE()+"', "+t.getSTOCK_CAPI()+", "+t.getSTOCK_CAPI_DOLLAR()+", "+t.getSTOCK_CAPI_RMB()+", "+"'"+t.getSTOCK_PERCENT()+"', "+t.getSTOCK_RATE_RMB()+", "+t.getSTOCK_RATE_DOLLAR()+", "+"to_date('"+t.getCREATE_DATE()+"','yyyy-mm-dd hh24:mi')); ";
+			// 将写文件指针移到文件尾。
+			bw.write(sql);
+			bw.newLine();
+			System.out.println(sql);
+		}
+			bw.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
