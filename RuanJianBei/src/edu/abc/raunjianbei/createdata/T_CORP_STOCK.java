@@ -8,6 +8,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Random;
 
+import edu.abc.ruanjianbei.model.bean.OneGuongSiMoneyBean;
 import edu.abc.ruanjianbei.model.bean.T_CORP_STOCKBean;
 
 public class T_CORP_STOCK {
@@ -18,6 +19,9 @@ public class T_CORP_STOCK {
 	private float STOCK_CAPI_RMB;
 	private float STOCK_RATE_RMB=1.0f;
 	private float STOCK_RATE_DOLLAR=0.1579f;
+	private String CREATE_DATE;
+	public ArrayList<T_CORP_STOCKBean> touGuRens;//所有的股东信息
+	public ArrayList<OneGuongSiMoneyBean> allMenoy;//一个公司的信息
 	
 	public T_CORP_STOCK() {
 		
@@ -30,10 +34,10 @@ public class T_CORP_STOCK {
 		String firstname[]= {"赵","钱","孙","李","周","吴","郑","王","蒋","沈","韩","杨","曹","马","陈","苏","姜","宋"};
 		String lastname1[]= {"浩","豪","好","昊","点","雷","虹","腾","彬","诺","曼","耀","瑞","虎","宝","倩","帆","朗","鹿","洲","轩","俊","雅","霞"};
 		String lastname2[]= {"平","","展","睿","威","舟","","","","桐","彤","念","农","","星","倩","华","彰","","","","龙","雅","景"};
-		ArrayList<T_CORP_STOCKBean> touGuRens=new ArrayList<>();
+		touGuRens=new ArrayList<>();
 		
-		
-		for(int i=0;i<1;i++)//省份
+		allMenoy=new ArrayList<OneGuongSiMoneyBean>();
+		for(int i=0;i<10;i++)//省份
 		{	
 			float renjiaozonge=0;
 			String yue=null;
@@ -42,12 +46,12 @@ public class T_CORP_STOCK {
 			
 			ORG=876+i;//主键机关代码
 			
-			int companynum=random.nextInt(10);
+			int companynum=random.nextInt(20)+1;
 			for(int j=0;j<companynum;j++) {//控制每个地区公司个数
 				//主键公司序号
 				SEQ_ID=j+1;
 				
-				int number=random.nextInt(10);//控制股东个数
+				int number=random.nextInt(20)+1;//控制股东个数
 				for(int index=0;index<number;index++) {//同一个公司
 					//建立一个股东
 					T_CORP_STOCKBean touGuRen=new T_CORP_STOCKBean();
@@ -93,8 +97,8 @@ public class T_CORP_STOCK {
 					int s5=Math.round((random.nextFloat()+1)*1000);
 				
 					String shenfenzheng=""+s1+s2+yue+ri+s5;
-					String shijian=""+s6+"/"+yue+"/"+ri+" "+s7+":"+s8;
-					touGuRen.setCREATE_DATE(shijian);
+					CREATE_DATE=""+s6+"/"+yue+"/"+ri+" "+s7+":"+s8;
+					touGuRen.setCREATE_DATE(CREATE_DATE);
 					touGuRen.setCERTIFICATE_NO(shenfenzheng);
 				
 					//股东认缴
@@ -116,7 +120,16 @@ public class T_CORP_STOCK {
 								
 					renjiaozonge=renjiaozonge+renjiaoe;
 				}
-			
+				
+				OneGuongSiMoneyBean oneGongSiMoney=new OneGuongSiMoneyBean();
+				oneGongSiMoney.setORG(ORG);
+				oneGongSiMoney.setSEQ_ID(SEQ_ID);
+				oneGongSiMoney.setAllMoney(renjiaozonge);
+				oneGongSiMoney.setGuDongcount(number);
+				oneGongSiMoney.setChenglishijian(CREATE_DATE);
+				
+				allMenoy.add(oneGongSiMoney);
+				
 				//		System.out.println("总额"+renjiaozonge);
 				//		System.out.println("股东:"+number);
 				//		System.out.println("temp"+temp);
