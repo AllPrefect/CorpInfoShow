@@ -10,11 +10,15 @@ import java.util.Random;
 
 import edu.abc.ruanjianbei.model.bean.OneGuongSiMoneyBean;
 import edu.abc.ruanjianbei.model.bean.T_CORP_STOCKBean;
-
+/**
+ * 股东/发起人信息表
+ * @author user
+ *
+ */
 public class T_CORP_STOCK {
-	private int ORG;
-	private int ID;//同一个公司不一样
-	private int SEQ_ID;
+	public int ORG;
+	public int ID;//同一个公司不一样
+	public int SEQ_ID;
 	private String STOCK_NAME=null;
 	private float STOCK_CAPI_RMB;
 	private float STOCK_RATE_RMB=1.0f;
@@ -22,6 +26,7 @@ public class T_CORP_STOCK {
 	private String CREATE_DATE;
 	public ArrayList<T_CORP_STOCKBean> touGuRens;//所有的股东信息
 	public ArrayList<OneGuongSiMoneyBean> allMenoy;//一个公司的信息
+	public ArrayList<Integer> gudongid;//存一个公司的每个股东的id
 	
 	public T_CORP_STOCK() {
 		
@@ -51,19 +56,39 @@ public class T_CORP_STOCK {
 				//主键公司序号
 				SEQ_ID=j+1;
 				
+				int s9=random.nextInt(12)+1;
+				int s10=random.nextInt(28)+1;
+			
+				int s6=random.nextInt(80)+1880;//公司成立年份
+				int s7=random.nextInt(24);//公司成立小时
+				int s8=random.nextInt(60);//公司成立分
+				if(s9<10) {
+					yue="0"+s9;
+				}else {
+					yue=""+s9;
+				}
+				if(s10<10) {
+					ri="0"+s10;
+				}else {
+					ri=""+s10;
+				}
+				CREATE_DATE=""+s6+"/"+yue+"/"+ri+" "+s7+":"+s8;
+				
 				int number=random.nextInt(20)+1;//控制股东个数
 				for(int index=0;index<number;index++) {//同一个公司
 					//建立一个股东
 					T_CORP_STOCKBean touGuRen=new T_CORP_STOCKBean();
 					//主键股东序号
 					ID=index+1000;
+					gudongid=new ArrayList<>();//每次重新实例化，避免将所有公司的id存到同一个集合
+					gudongid.add(ID);
 					touGuRen.setORG(ORG);
 					touGuRen.setID(ID);
 					touGuRen.setSEQ_ID(SEQ_ID);
 					touGuRen.setSTOCK_TYPE("自然人");
 					touGuRen.setCERTIFICATE_TYPE("身份证");
 					touGuRen.setSTOCK_CAPI_TYPE("人民币");
-				
+					
 					//国家
 					int n=random.nextInt(country.length);
 					touGuRen.setCOUNTRY(country[n]);
@@ -81,9 +106,6 @@ public class T_CORP_STOCK {
 					int s3=random.nextInt(12)+1;
 					int s4=random.nextInt(28)+1;
 				
-					int s6=random.nextInt(80)+1880;//公司成立年份
-					int s7=random.nextInt(24);//公司成立小时
-					int s8=random.nextInt(60);//公司成立分
 					if(s3<10) {
 						yue="0"+s3;
 					}else {
@@ -97,7 +119,7 @@ public class T_CORP_STOCK {
 					int s5=Math.round((random.nextFloat()+1)*1000);
 				
 					String shenfenzheng=""+s1+s2+yue+ri+s5;
-					CREATE_DATE=""+s6+"/"+yue+"/"+ri+" "+s7+":"+s8;
+					
 					touGuRen.setCREATE_DATE(CREATE_DATE);
 					touGuRen.setCERTIFICATE_NO(shenfenzheng);
 				
@@ -120,14 +142,13 @@ public class T_CORP_STOCK {
 								
 					renjiaozonge=renjiaozonge+renjiaoe;
 				}
-				
 				OneGuongSiMoneyBean oneGongSiMoney=new OneGuongSiMoneyBean();
 				oneGongSiMoney.setORG(ORG);
+				oneGongSiMoney.setID(gudongid);
 				oneGongSiMoney.setSEQ_ID(SEQ_ID);
 				oneGongSiMoney.setAllMoney(renjiaozonge);
 				oneGongSiMoney.setGuDongcount(number);
 				oneGongSiMoney.setChenglishijian(CREATE_DATE);
-				
 				allMenoy.add(oneGongSiMoney);
 				
 				//		System.out.println("总额"+renjiaozonge);
