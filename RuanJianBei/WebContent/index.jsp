@@ -1,101 +1,57 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+﻿<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
 <!DOCTYPE html>
-<html lang="zh">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title></title>
-<link rel="stylesheet" href="js/jquery-ui.css">
-<script src="js/jquery-3.3.1.js"></script>
-<script src="js/jquery-ui.js"></script>
-<!-- 处理搜索栏部分 ，用了jquery ui部件-->
-<script>
-	$(function(){
-		$(".rph").focus(function(){
-			$(".rph").autocomplete({  
-		    	minLength: 0,  
-		        source: function( request, response ) {  
-		        $.ajax({
-		           type : "POST",
-		           dataType : "JSON",
-		           url : '${pageContext.request.contextPath }/Companyservlet',
-		           data : {
-		           		"name" : $(".rph").val(),
-		           		"method":"search"
-		           	},
-		           success : function(data) {
-		           		console.log(data);  
-	                    response( $.map( data, function( item ) {  
-							return {  
-								label: item.corp_NAME,  
-	                            value: item.corp_NAME  
-	                        }  
-	                     }));  
-					}  
-	            });
-	          	},  
-	            focus: function( event, ui ) {  
-	            	$(".rph").val( ui.item.label );  
-	                $("#rpId").val( ui.item.value );  
-	                return false;  
-	            },  
-	            select: function( event, ui ) {  
-	                $(".rph").val( ui.item.label );  
-	                $("#rpId").val( ui.item.value );  
-	                return false; 
-	            }    
-	         }); 
-		});
-	});
-</script>
-		
-		<!-- <script type="text/javascript">
-			$(function(){
-				$("#searchmeg").click(function(){
-					 $.ajax({
-		           			type : "POST",
-		           			dataType : "JSON",
-		           			url : '${pageContext.request.contextPath }/Companyservlet',
-		           			data : {
-		           				"sc" : $(".rph").val(),
-		           				"method":"searchmeg"
-		           			},
-		           			success : function(data) {
-		        				//遍历返回的JsonArray
-		        				$.each(data, function(index, data) {
-		        					/* $("#brxmSelect").append($("<option></option>").append(data.corp_NAME).attr("value",data.corp_NAME)); */
-		        					$("table").append($("<tr><td>公司名</td><td></tr>"))
-		        				});
-				})
-			});
-		</script> -->
+<html>
+	<head>
 
-<!-- 给搜索按钮添加点击事件 -->
-<script type="text/javascript">
-	function searchmeg(url){
-		var name=$(".rph").val();
-			var u=url+"&name="+name
-			location.href=u;
-	} 
-</script>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Home</title>
+
+		<!-- Bootstrap -->
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<!-- Style.css -->
+		<link href="css/style.css" rel="stylesheet">
+		<!--添加的css-->
+		<link href="css/company.css">
+
+	</head>
+	<body>
+		<%@include file="pageheader.jsp" %>
 		
-</head>
-<body>
-	<div class="ui-widget">
-		<label for="tags">公司名: </label> 
-		<input type="text" name="phName" value="" id="phName" class="rph"> 
-		<input type="hidden" name="rpId" id="rpId" />
-		<a href="javascript:searchmeg('${pageContext.request.contextPath }/Companyservlet?method=searchmeg')"><input  id="searchmeg" type="button" value="搜索" ></a>
-	</div>
-	<table border="1" >
-		<tr>
-			<td >公司名</td>
-			<td style="width:200px; ">${requestScope.companymeg.CORP_NAME }</td>
-			<td >地址</td>
-			<td style="width:200px; ">${requestScope.companymeg.ADDR }</td>
-		</tr>
+
+		<div class="section large transparent dark text-center" style="background-image: url('images/background01.jpg');">
+			<div class="inner" >
+				<div class="container" >
+					<h1>企业信息族谱分析</h1>
+					<p class="lead">Analysis of enterprise information genealogy.</p>
+					<form>
+						<div class="row">
+							<div class="col-sm-4">
+								<div class="form-group">
+									<input type="text" placeholder="What are you looking for ?">
+								</div> <!-- end .form-group -->
+							</div> <!-- end .col-sm-4 -->
+							
+						</div> <!-- end .row -->
+					</form>
+				</div> <!-- end .container -->
+			</div> <!-- end .inner -->
+		</div> <!-- end .section -->
 		
-	</table>
-</body>
+
+
+		
+		
+		
+		<!-- jQuery -->
+		<script src="js/jquery-3.1.0.min.js"></script>
+		 <!--Scripts.js--> 
+		<script src="js/scripts.js"></script>
+		<!--bootstrap-->
+		<script src="js/bootstrap.min.js"></script>
+		<!--自己编写的数据库-->
+		<script src="js/company.js"></script>
+	</body>
 </html>

@@ -1,0 +1,7 @@
+#tableWrapper {
+	min-width:768px;
+	width:1200px;
+	border:1px solid white;
+	z-index: 100;
+
+}

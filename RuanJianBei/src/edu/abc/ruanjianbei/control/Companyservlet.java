@@ -51,7 +51,7 @@ public class Companyservlet extends HttpServlet {
 		T_CORPBean companymeg=companydao.searchOneCompany(name);
 		request.setAttribute("companymeg", companymeg);
 		System.out.println(companymeg);
-		request.getRequestDispatcher("/index.jsp").forward(request, response);
+		request.getRequestDispatcher("/index1.jsp").forward(request, response);
 	}
 	protected void search(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
 		String name = request.getParameter("name");
