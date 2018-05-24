@@ -45,92 +45,95 @@
 							</ul>
 						</div> <!-- end .breadcrumbs -->
 					</div> <!-- end .page-header -->
-					
-					<div id="tableWrapper">
-						<table id="table_1">
-							<tr>
-								<td rowspan="4" style="width:18%;border: 1px solid #f1f2f6;">认证公司</td>
-								<td colspan="2" style="font-size:18px;">公司名称：${requestScope.companymeg.CORP_NAME }</td>
-							</tr>
-							<tr>
-								<td>电话：${requestScope.companymeg.TEL }</td>
-								<td></td>
-							</tr>
-							<tr>
-								<td>官网：${requestScope.companymeg.WEB_URL }</td>
-								<td>邮箱：${requestScope.companymeg.EMAIL }</td>
-							</tr>
-							<tr>
-								<td>地址:${requestScope.companymeg.ADDR }</td>
-								<td>附近公司</td>
-							</tr>
-						</table>
-						
-						<table id="table_2">
-							<tr>
-								<td>注册资本：</td>
-								<td>${requestScope.companymeg.REG_CAPI }</td>
-								<td>成立日期：</td>
-								<td>${requestScope.companymeg.START_DATE }</td>
-							</tr>
-							<tr>
-								<td>经营状态：</td>
-								<td>
-									<c:if test="${requestScope.companymeg.CORP_STATUS eq '1'}">在业</c:if>
-									<c:if test="${requestScope.companymeg.CORP_STATUS eq '2'}">注销</c:if>
-									<c:if test="${requestScope.companymeg.CORP_STATUS eq '3'}">吊销</c:if>
-									<c:if test="${requestScope.companymeg.CORP_STATUS eq '4'}">迁出</c:if>
-								</td>
-								<td>统一社会信用代码：</td>
-								<td>${requestScope.companymeg.REG_NO }</td>
-							</tr>
-							<tr>
-								<td>纳税人识别号：</td>
-								<td>${requestScope.companymeg.TAXPAY_NUM }</td>
-								<td>注册号：</td>
-								<td>${requestScope.companymeg.UNI_SCID }</td>
-							</tr>
-							<tr>
-								<td>组织机构代码：</td>
-								<td>${requestScope.companymeg.ORG_INST_CODE }</td>
-								<td>公司类型：</td>
-								<td>${requestScope.companymeg.ECON_KIND }</td>
-							</tr>
-							<tr>
-								<td>人员规模：</td>
-								<td>${requestScope.companymeg.STAFF_SIZE }</td>
-								<td>营业期限：</td>
-								<td>${requestScope.companymeg.FARE_TERM_START }至${requestScope.companymeg.FARE_TERM_END }</td>
-							</tr>
-							<tr>
-								<td>登记机关：</td>
-								<td>${requestScope.companymeg.BELONG_ORG }</td>
-								<td>核准日期：</td>
-								<td>${requestScope.companymeg.CHECK_DATE }</td>
-							</tr>
-							<tr>
-								<td>英文名：</td>
-								<td>${requestScope.companymeg.ENGLISH_NAME }</td>
-								<td>曾用名：</td>
-								<td>${requestScope.companymeg.FORMER_NAME }</td>
-							</tr>
-							<tr>
-								<td>所属地区：</td>
-								<td>${requestScope.companymeg.BELONG_DIST_ORG }</td>
-								<td>所属行业：</td>
-								<td>${requestScope.companymeg.BELONG_TRADE }</td>
-							</tr>
-							<tr>
-								<td>企业地址：</td>
-								<td colspan="3">${requestScope.companymeg.ADDR}</td>
-							</tr>
-							<tr style="height:80px;">
-								<td>经营范围：</td>
-								<td colspan="3">${requestScope.companymeg.FARE_SCOPE }</td>
-							</tr>
-						</table>
-					</div>
 				
+					<div id="outStruct">
+						<c:if test="${not empty requestScope.companymeg}">
+						<div id="tableWrapper">
+							<table id="table_1">
+								<tr>
+									<td rowspan="4" style="width:18%;border: 1px solid #f1f2f6;">认证公司</td>
+									<td colspan="2" style="font-size:18px;">公司名称：${requestScope.companymeg.CORP_NAME }</td>
+								</tr>
+								<tr>
+									<td>电话：${requestScope.companymeg.TEL }</td>
+									<td></td>
+								</tr>
+								<tr>
+									<td>官网：${requestScope.companymeg.WEB_URL }</td>
+									<td>邮箱：${requestScope.companymeg.EMAIL }</td>
+								</tr>
+								<tr>
+									<td>地址:${requestScope.companymeg.ADDR }</td>
+									<td>附近公司</td>
+								</tr>
+							</table>
+							
+							<table id="table_2">
+								<tr>
+									<td>注册资本：</td>
+									<td>${requestScope.companymeg.REG_CAPI }</td>
+									<td>成立日期：</td>
+									<td>${requestScope.companymeg.START_DATE }</td>
+								</tr>
+								<tr>
+									<td>经营状态：</td>
+									<td>
+										<c:if test="${requestScope.companymeg.CORP_STATUS eq '1'}">在业</c:if>
+										<c:if test="${requestScope.companymeg.CORP_STATUS eq '2'}">注销</c:if>
+										<c:if test="${requestScope.companymeg.CORP_STATUS eq '3'}">吊销</c:if>
+										<c:if test="${requestScope.companymeg.CORP_STATUS eq '4'}">迁出</c:if>
+									</td>
+									<td>统一社会信用代码：</td>
+									<td>${requestScope.companymeg.REG_NO }</td>
+								</tr>
+								<tr>
+									<td>纳税人识别号：</td>
+									<td>${requestScope.companymeg.TAXPAY_NUM }</td>
+									<td>注册号：</td>
+									<td>${requestScope.companymeg.UNI_SCID }</td>
+								</tr>
+								<tr>
+									<td>组织机构代码：</td>
+									<td>${requestScope.companymeg.ORG_INST_CODE }</td>
+									<td>公司类型：</td>
+									<td>${requestScope.companymeg.ECON_KIND }</td>
+								</tr>
+								<tr>
+									<td>人员规模：</td>
+									<td>${requestScope.companymeg.STAFF_SIZE }</td>
+									<td>营业期限：</td>
+									<td>${requestScope.companymeg.FARE_TERM_START }至${requestScope.companymeg.FARE_TERM_END }</td>
+								</tr>
+								<tr>
+									<td>登记机关：</td>
+									<td>${requestScope.companymeg.BELONG_ORG }</td>
+									<td>核准日期：</td>
+									<td>${requestScope.companymeg.CHECK_DATE }</td>
+								</tr>
+								<tr>
+									<td>英文名：</td>
+									<td>${requestScope.companymeg.ENGLISH_NAME }</td>
+									<td>曾用名：</td>
+									<td>${requestScope.companymeg.FORMER_NAME }</td>
+								</tr>
+								<tr>
+									<td>所属地区：</td>
+									<td>${requestScope.companymeg.BELONG_DIST_ORG }</td>
+									<td>所属行业：</td>
+									<td>${requestScope.companymeg.BELONG_TRADE }</td>
+								</tr>
+								<tr>
+									<td>企业地址：</td>
+									<td colspan="3">${requestScope.companymeg.ADDR}</td>
+								</tr>
+								<tr style="height:80px;">
+									<td>经营范围：</td>
+									<td colspan="3">${requestScope.companymeg.FARE_SCOPE }</td>
+								</tr>
+							</table>
+						</div>
+						</c:if>
+					</div>
 				</div>
 				
 				<!-- 股权结构 -->
@@ -144,7 +147,10 @@
 						</div> <!-- end .breadcrumbs -->
 					</div> <!-- end .page-header -->
 					
+					<div id="outStruct">
 					
+					</div>					
+				
 					
 				</div>
 				
@@ -159,10 +165,13 @@
 						</div> <!-- end .breadcrumbs -->
 					</div> <!-- end .page-header -->
 					
-					<div id="showzupu"></div>
-					<div>
-						<input type="hidden" value="${requestScope.companymeg.CORP_NAME }" id="CORP_NAME"/>
-					</div>
+					<div id="outStruct">
+						<div id="showzupu" style=""></div>
+						<div>
+							<input type="hidden" value="${requestScope.companymeg.CORP_NAME }" id="CORP_NAME"/>
+						</div>
+					</div>	
+					
 				</div>
 				
 				<!-- 企业族谱 -->
@@ -176,6 +185,10 @@
 						</div> <!-- end .breadcrumbs -->
 					</div> <!-- end .page-header -->
 					
+					<div id="outStruct">
+					
+					</div>	
+					
 				</div>
 				
 				<!-- 疑似关系 -->
@@ -188,6 +201,10 @@
 							</ul>
 						</div> <!-- end .breadcrumbs -->
 					</div> <!-- end .page-header -->
+					
+					<div id="outStruct">
+					
+					</div>	
 					
 				</div>
 				
@@ -211,6 +228,8 @@
 		<script src="js/echarts.js"></script>
 		<!--自己编写的数据库-->
 		<script src="js/company.js"></script>
+
+
 
 <c:if test="${not empty requestScope.companymeg}">
 	<script>

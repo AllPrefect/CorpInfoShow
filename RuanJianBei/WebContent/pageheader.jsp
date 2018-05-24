@@ -6,8 +6,8 @@
 	<div class="left">
 		<div class="logo"><a href="index.jsp"><img src="images/logo.png" class="img-responsive"></a></div> 
 		<!-- end .logo -->
-		<form class="header-search">
-			<input type="text" placeholder="搜索"  id="">
+		<form class="header-search" action="${pageContext.request.contextPath }/CompanyServlet?method=searchAll" id="searchForm" method="post">
+			<input type="text" placeholder="搜索"  id="searchInputTop" name="CorpName">
 			<button type="submit" class="btn btn-default"  style="outline: none;">
 				<span class="glyphicon glyphicon-search"></span>
 			</button>

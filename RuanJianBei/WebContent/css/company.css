@@ -1,6 +1,7 @@
+/* 公司信息显示部分*/
 #tableWrapper {
 	width:800px;
-	height:500px;
+	height:600px;
 	margin-top:50px;
 	margin-left:auto;
 	margin-right:auto;
@@ -27,3 +28,29 @@
 #table_2 td{
 	border: 1px solid #f1f2f6;
 }
+/*选项卡显示内容外部大框*/
+#outStruct {
+	width:80%;
+	height:600px;
+	margin-top:50px;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+#showzupu {
+	width:800px;
+	height:500px;
+	margin:auto;
+	background-color: #f1f2f6;
+}
+
+/*jQuery ui部分*/
+.ui-autocomplete {
+    max-height: 140px;
+    overflow-y: hidden;
+    /* prevent horizontal scrollbar */
+    overflow-x: hidden;
+}
+* html .ui-autocomplete {
+    height: 100px;
+ }

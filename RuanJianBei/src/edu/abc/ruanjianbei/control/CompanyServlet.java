@@ -76,12 +76,12 @@ public class CompanyServlet extends HttpServlet {
 		response.getWriter().print(jsonString);
 	}
 	/*
-	 * 显示投资族谱中，投资信息
+	 * 显示投资族谱中的投资信息
 	 */
 	protected void touzizupu(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		String CORP_NAME = request.getParameter("CORP_NAME");
-		System.out.println(CORP_NAME);
+		//System.out.println(CORP_NAME);
 		ArrayList<ChildrenBean> GuDongRen=companydao.selectGuDongRenByCompanyName(CORP_NAME);
 		ArrayList<ChildrenBean> GuDongCom=companydao.selectGuDongComByCompanyName(CORP_NAME);
 		
@@ -94,7 +94,7 @@ public class CompanyServlet extends HttpServlet {
 		TouziDataBean alldata=new TouziDataBean(CORP_NAME,data);
 		ObjectMapper mapper = new ObjectMapper();
 		String jsonString = mapper.writeValueAsString(alldata);
-		System.out.println(jsonString);
+		System.out.println("数据库查询返回的json数据"+jsonString);
 		//返回jsonArray数据
 		response.setCharacterEncoding("UTF-8");
 		response.setContentType("text/javascript");
