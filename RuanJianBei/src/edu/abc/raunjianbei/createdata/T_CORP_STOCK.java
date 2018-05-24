@@ -53,6 +53,7 @@ public class T_CORP_STOCK {
 			
 			int companynum=random.nextInt(20)+1;
 			for(int j=0;j<companynum;j++) {//控制每个地区公司个数
+				renjiaozonge=0;
 				//主键公司序号
 				SEQ_ID=j+1;
 				
@@ -142,6 +143,7 @@ public class T_CORP_STOCK {
 								
 					renjiaozonge=renjiaozonge+renjiaoe;
 				}
+				System.out.println("-------------------------------------------------");
 				OneGuongSiMoneyBean oneGongSiMoney=new OneGuongSiMoneyBean();
 				oneGongSiMoney.setORG(ORG);
 				oneGongSiMoney.setID(gudongid);
@@ -187,7 +189,7 @@ public class T_CORP_STOCK {
 			// 将写文件指针移到文件尾。
 			bw.write(sql);
 			bw.newLine();
-			System.out.println(sql);
+			//System.out.println(sql);
 		}
 			bw.close();
 		} catch (Exception e) {

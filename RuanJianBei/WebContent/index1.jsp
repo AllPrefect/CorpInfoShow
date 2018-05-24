@@ -97,5 +97,68 @@
 		</tr>
 		
 	</table>
+	<a href="javascript:showzupu('${requestScope.companymeg.CORP_NAME }')">查看公司族谱</a>
+	<div id="showzupu"></div>
 </body>
+<!--显示公司对外投资族谱  -->
+	<script type="text/javascript">
+		var myChart = echarts.init(document.getElementById('showzupu'));
+		function showzupu(name) {
+			$.ajax({
+				type : "POST",
+				dataType : "JSON",
+				url : '${pageContext.request.contextPath }/Companyservlet',
+				data : {
+					"name" : name,
+					"method" : "touzizupu"
+				},
+				success : function(result) {
+					console.log(result);
+					myChart.setOption({
+						tooltip : {
+							trigger : 'item',
+							triggerOn : 'mousemove'
+						},
+						series : [ {
+							type : 'tree',
+							data : [ result ],
+							top : '5%',
+							layout : 'radial',
+							symbol : 'circle',
+							symbolSize : 10,
+							itemStyle : {//树图中每个节点的样式
+								normal : {
+									color : '#ffffff',
+									borderColor : '#b03a5b',
+									borderWidth : 2
+								},
+								emphasis : {
+									color : '#000',
+									borderColor : '#b03a5b',
+									borderWidth : 5
+								}
+							},
+							label: {
+								show:true,
+								formatter: function(params) {
+						              var result = "";
+						              	if(params.name!=undefined){
+						              		result+=params.name+"\n";
+						              }
+						              	if(params.value!=undefined){
+						              		result+=params.value+"\n";
+						              }
+						              return result;
+						           },
+							},
+							initialTreeDepth : 3,
+							animationDurationUpdate : 750
+						} ]
+
+					});
+				}
+			})
+
+		}
+	</script>
 </html>
