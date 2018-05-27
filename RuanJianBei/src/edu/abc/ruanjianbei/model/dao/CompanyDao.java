@@ -20,15 +20,15 @@ public interface CompanyDao extends BaseDao{
 	/*
 	 * 通过公司名，查找向该公司投资的股东
 	 */
-	public ArrayList<ChildrenBean> selectGuDongByCompanyName(String name,String sql);
+	public ArrayList<ChildrenBean> selectGuDongByCompanyName(String name,String type,String sql);
 	
 	/*
 	 * 通过公司名，查找向该公司投资的股东
 	 */
-	public ArrayList<ChildrenBean> selectGuDongRenByCompanyName(String name);
+	public ArrayList<ChildrenBean> selectGuDongRenByCompanyName(String name,String type);
 	
 	/*
 	 * 通过公司名，查找向该公司投资的公司
 	 */
-	public ArrayList<ChildrenBean> selectGuDongComByCompanyName(String name);
+	public ArrayList<ChildrenBean> selectGuDongComByCompanyName(String name,String type);
 }

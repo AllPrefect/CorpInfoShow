@@ -162,20 +162,20 @@ public class CompanyDaoImpl extends BaseDaoImpl implements CompanyDao {
 	/*
 	 * 通过公司名，查找向该公司投资的股东
 	 */
-	public ArrayList<ChildrenBean> selectGuDongByCompanyName(String name,String sql){
+	public ArrayList<ChildrenBean> selectGuDongByCompanyName(String name,String type,String sql){
 		ArrayList<ChildrenBean> GuDong=new ArrayList<>();
 		PreparedStatement pst=null;
 		ResultSet rs=null;
+		String selectType=type;
 		Connection conn=BaseDaoImpl.getConnection();
 		try {
 			pst=conn.prepareStatement(sql);
 			pst.setString(1, name);
 			rs=pst.executeQuery();
 			while(rs.next()) {
-				String CORP_NAME=rs.getString("CORP_NAME");
 				String STOCK_NAME=rs.getString("STOCK_NAME");
 				String STOCK_PERCENT=rs.getString("STOCK_PERCENT");
-				ChildrenBean children=new ChildrenBean(STOCK_NAME, STOCK_PERCENT);
+				ChildrenBean children=new ChildrenBean(STOCK_NAME,selectType,STOCK_PERCENT);
 				GuDong.add(children);
 			}
 		} catch (SQLException e) {
@@ -190,25 +190,25 @@ public class CompanyDaoImpl extends BaseDaoImpl implements CompanyDao {
 	/*
 	 * 通过公司名，查找向该公司投资的股东
 	 */
-	public ArrayList<ChildrenBean> selectGuDongRenByCompanyName(String name){
+	public ArrayList<ChildrenBean> selectGuDongRenByCompanyName(String type,String name){
 		ArrayList<ChildrenBean> GuDongRen=new ArrayList<>();
 		String sql="select corp_name,stock_name,b.STOCK_PERCENT from T_CORP a,T_CORP_STOCK b,T_M_CORP_CORP_STOCK c" + 
 				" where a.org=c.ORG and a.id=c.ID and a.seq_id=c.SEQ_ID " + 
 				" and c.SUB_ID=b.SUB_ID and c.sub_org=b.sub_org and c.SUB_SEQ_ID=b.SUB_SEQ_ID and b.CERTIFICATE_TYPE is not NULL and a.CORP_NAME=?";
-		System.out.println("GuDongRen"+sql);
-		GuDongRen=selectGuDongByCompanyName(name,sql);
+		System.out.println("GuDongRen："+sql);
+		GuDongRen=selectGuDongByCompanyName(name,type,sql);
 		return GuDongRen;
 	}
 	/*
 	 * 通过公司名，查找向该公司投资的公司
 	 */
-	public ArrayList<ChildrenBean> selectGuDongComByCompanyName(String name){
+	public ArrayList<ChildrenBean> selectGuDongComByCompanyName(String type,String name){
 		ArrayList<ChildrenBean> GuDongCom=new ArrayList<>();
 		String sql="select corp_name,stock_name,b.STOCK_PERCENT from T_CORP a,T_CORP_STOCK b,T_M_CORP_CORP_STOCK c" + 
 				" where a.org=c.ORG and a.id=c.ID and a.seq_id=c.SEQ_ID " + 
 				" and c.SUB_ID=b.SUB_ID and c.sub_org=b.sub_org and c.SUB_SEQ_ID=b.SUB_SEQ_ID and b.CERTIFICATE_TYPE is NULL and a.CORP_NAME=?";
-		System.out.println("GuDongCom"+sql);
-		GuDongCom=selectGuDongByCompanyName(name,sql);
+		System.out.println("GuDongCom："+sql);
+		GuDongCom=selectGuDongByCompanyName(name,type,sql);
 		return GuDongCom;
 	}
 	

@@ -90,15 +90,14 @@ $(document).ready(function(){
             }    
          }); 
 	});
-	
-	
-//=================================================================================	
-});
+//=================================================================================
 
+});
 //=================================================================================
 //显示公司对外投资族谱  
 var myChart = echarts.init(document.getElementById('showzupu'));
 function showzupu() {
+	myChart.showLoading();//数据加载完之前先显示一段简单的loading动画
 	$.ajax({
 		type : "POST",
 		dataType : "JSON",
@@ -109,52 +108,100 @@ function showzupu() {
 		},
 		success : function(result) {
 			console.log(result);
-			myChart.setOption({
-				tooltip : {
-					trigger : 'item',
-					triggerOn : 'mousemove'
-				},
-				series : [ {
-					type : 'tree',
-					data : [ result ],
-					top : '5%',
-					layout : 'radial',
-					symbol : 'circle',
-					symbolSize : 10,
-					itemStyle : {//树图中每个节点的样式
-						normal : {
-							color : '#ffffff',
-							borderColor : '#b03a5b',
-							borderWidth : 2
-						},
-						emphasis : {
-							color : '#000',
-							borderColor : '#b03a5b',
-							borderWidth : 5
-						}
-					},
-					label: {
-						show:true,
-						formatter: function(params) {
-				              var result = "";
-				              	if(params.name!=undefined){
-				              		result+=params.name+"\n";
-				              }
-				              	if(params.value!=undefined){
-				              		result+=params.value+"\n";
-				              }
-				              return result;
-				           },
-					},
-					initialTreeDepth : 3,
-					animationDurationUpdate : 750
-				} ]
-
-			});
+			var r=getJsonTree(result,"");
+			myChart.hideLoading(); 
+			drawTree(r);
 		}
 	})
 
 } 
+//显示树
+function drawTree(treeData) {
+	myChart.setOption({
+		tooltip : {
+			trigger : 'item',
+			triggerOn : 'mousemove'
+		},
+		series : [ {
+			type : 'tree',
+			data : treeData,
+			top : '5%',
+			layout : 'radial',
+			symbol : 'circle',
+			symbolSize : 10,
+			itemStyle : {//树图中每个节点的样式
+				normal : {
+					color : '#ffffff',
+					borderColor : '#b03a5b',
+					borderWidth : 2
+				},
+				emphasis : {
+					color : '#000',
+					borderColor : '#b03a5b',
+					borderWidth : 5
+				}
+			},
+			label: {
+				show:true,
+				formatter: function(params) {
+		              var result = "";
+		              	if(params.name!=undefined){
+		              		result+=params.name+"\n";
+		              }
+		              	if(params.value!=undefined){
+		              		result+=params.value+"\n";
+		              }
+		              return result;
+		           },
+			},
+			initialTreeDepth : 3,
+			animationDurationUpdate : 750
+		} ]
+
+	});
+}
+//=================================================================================
+//处理ajax返回的字符串为符合echarts规范的树状串
+var getJsonTree=function(data,parentId){
+  var itemArr=[];
+  for(var i=0;i<data.length;i++){ 
+      var node=data[i];
+      //data.splice(i, 1)
+       if(node.parentId==parentId ){ 
+          var newNode={name:node.id,value:node.value,children:getJsonTree(data,node.id)};
+          itemArr.push(newNode);              
+       }
+  }
+  return itemArr;
+}
+
+//=================================================================================
+//投资族谱中的层级切换
+var step= ['一层','二层','三层','四层','五层','六层'];
+var shuru = $(".shuru");
+var shuru1 = $(".shuru1");
+var i = 0;
+var j = 0;
+function shang(){
+  i++;
+  shuru.text(step[i]);
+  if(i>=5) i=5;
+}
+function xia(){
+  i--;
+  shuru.text(step[i]);
+  if(i<=0) i=0;
+}
+function shang1(){
+  j++;
+  shuru1.text(step[j]);
+  if(j>=5) j=5;
+}
+function xia1(){
+  j--;
+  shuru1.text(step[j]);
+  if(j<=0) j=0;
+}
 
 //=================================================================================
 

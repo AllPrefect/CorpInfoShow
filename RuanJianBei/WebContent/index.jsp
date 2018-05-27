@@ -148,7 +148,7 @@
 					</div> <!-- end .page-header -->
 					
 					<div id="outStruct">
-					
+						<div></div>
 					</div>					
 				
 					
@@ -166,7 +166,29 @@
 					</div> <!-- end .page-header -->
 					
 					<div id="outStruct">
-						<div id="showzupu" style=""></div>
+						<!-- 选择层级 -->
+						<div class="content">
+							<div class="content1 pull-right">
+								<div class="fangxiang pull-right">
+									<span class="glyphicon glyphicon-triangle-top tfx" onclick="shang()"></span>
+									<span class="glyphicon glyphicon-triangle-bottom bfx" onclick="xia()"></span>
+								</div>
+					    		<div class="shuru">一层</div>
+					    	</div>
+					   		<span class="desc pull-right">股东层级：</span>
+    
+    
+						    <div class="content1 pull-right">
+						    	<div class="fangxiang pull-right">
+									<span class="glyphicon glyphicon-triangle-top tfx" onclick="shang1()"></span>
+									<span class="glyphicon glyphicon-triangle-bottom bfx" onclick="xia1()"></span>
+						    	</div>
+						    	<div class="shuru1">一层</div>
+						    </div>
+						    <span class="desc pull-right">对外投资层级：</span>
+						</div>
+						<div id="showzupu" style="width:800px;height:500px;"></div>
+						
 						<div>
 							<input type="hidden" value="${requestScope.companymeg.CORP_NAME }" id="CORP_NAME"/>
 						</div>
@@ -228,7 +250,6 @@
 		<script src="js/echarts.js"></script>
 		<!--自己编写的数据库-->
 		<script src="js/company.js"></script>
-
 
 
 <c:if test="${not empty requestScope.companymeg}">

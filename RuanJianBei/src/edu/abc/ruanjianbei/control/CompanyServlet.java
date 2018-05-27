@@ -15,8 +15,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import edu.abc.ruanjianbei.model.bean.ChildrenBean;
 import edu.abc.ruanjianbei.model.bean.T_CORPBean;
-import edu.abc.ruanjianbei.model.bean.TouziBean;
-import edu.abc.ruanjianbei.model.bean.TouziDataBean;
 import edu.abc.ruanjianbei.model.dao.CompanyDao;
 import edu.abc.ruanjianbei.model.dao.CompanyDaoImpl;
 
@@ -82,18 +80,19 @@ public class CompanyServlet extends HttpServlet {
 		// TODO Auto-generated method stub
 		String CORP_NAME = request.getParameter("CORP_NAME");
 		//System.out.println(CORP_NAME);
-		ArrayList<ChildrenBean> GuDongRen=companydao.selectGuDongRenByCompanyName(CORP_NAME);
-		ArrayList<ChildrenBean> GuDongCom=companydao.selectGuDongComByCompanyName(CORP_NAME);
+		ArrayList<ChildrenBean> GuDongRen=companydao.selectGuDongRenByCompanyName("股东",CORP_NAME);
+		ArrayList<ChildrenBean> GuDongCom=companydao.selectGuDongComByCompanyName("对外投资",CORP_NAME);
 		
-		ArrayList<TouziBean> data=new ArrayList<>();
-		TouziBean touzi1=new TouziBean("对外投资",GuDongCom);
-		TouziBean touzi2=new TouziBean("股东",GuDongRen);
-		data.add(touzi1);
-		data.add(touzi2);
+		ChildrenBean root=new ChildrenBean(CORP_NAME, "", "");
+		ChildrenBean root1=new ChildrenBean("股东", CORP_NAME, "");
+		ChildrenBean root2=new ChildrenBean("对外投资", CORP_NAME, "");
+		GuDongRen.addAll(GuDongCom);
+		GuDongRen.add(root);
+		GuDongRen.add(root1);
+		GuDongRen.add(root2);
 		
-		TouziDataBean alldata=new TouziDataBean(CORP_NAME,data);
 		ObjectMapper mapper = new ObjectMapper();
-		String jsonString = mapper.writeValueAsString(alldata);
+		String jsonString = mapper.writeValueAsString(GuDongRen);
 		System.out.println("数据库查询返回的json数据"+jsonString);
 		//返回jsonArray数据
 		response.setCharacterEncoding("UTF-8");
