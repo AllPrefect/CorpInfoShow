@@ -97,27 +97,133 @@ $(document).ready(function(){
 //显示公司对外投资族谱  
 var myChart = echarts.init(document.getElementById('showzupu'));
 function showzupu() {
-	myChart.showLoading();//数据加载完之前先显示一段简单的loading动画
+//	var company=$(".companyInput").text();
+//	var stock=$(".stockInput").text();
+	//数据加载完之前先显示一段简单的loading动画
+	myChart.showLoading();
 	$.ajax({
 		type : "POST",
 		dataType : "JSON",
 		url : 'CompanyServlet',
 		data : {
 			"CORP_NAME" :  $("#CORP_NAME").val(),
-			"method" : "touzizupu"
+			"method" : "touzizupu",
+			"companyLevel" : j,
+			"stockLevel" : i
 		},
 		success : function(result) {
 			console.log(result);
 			var r=getJsonTree(result,"");
 			myChart.hideLoading(); 
-			drawTree(r);
+			drawTouziTree(r);
+			
+//			//在返回的数据中取出判断是否还有更多的关系
+//			if(result[result.length-1].value="false"){
+//				//保持之前的层级不变
+//				$(".stockInput").text(step[i-1]);
+//				i=i-1;
+//				alert("股东没有更多关系了");
+//			}
+//			if(result[result.length-2].value="false"){
+//				$(".companyInput").txt(step[j-1]);
+//				j=j-1;
+//				alert("对外投资没有更多的关系了");
+//			}
+			
 		}
 	})
 
 } 
-//显示树
-function drawTree(treeData) {
+//显示投资族谱树
+function drawTouziTree(treeData) {
+	var model=myChart.getModel();
 	myChart.setOption({
+		tooltip : {
+			trigger : 'item',
+			triggerOn : 'mousemove'
+		},
+		series : [ {
+			type : 'tree',
+			data : treeData,
+			top : '5%',
+			layout : 'radial',
+			symbol : 'circle',
+			symbolSize : 10,
+			itemStyle : {//树图中每个节点的样式
+				normal : {
+					color : '#ffffff',
+					borderColor : '#b03a5b',
+					borderWidth : 2
+				},
+				emphasis : {
+					color : '#000',
+					borderColor : '#b03a5b',
+					borderWidth : 5
+				}
+			},
+			label: {
+				show:true,
+				formatter: function(params) {
+		              var result = "";
+		              	if(params.name!=undefined){
+		              		result+=params.name+"\n";
+		              }
+		              	if(params.value!=undefined){
+		              		result+=params.value+"\n";
+		              }
+		              return result;
+		           },
+			},
+			initialTreeDepth : 9,
+			animationDurationUpdate : 750
+		} ]
+
+	});
+}
+//=================================================================================
+//处理ajax返回的字符串为符合echarts规范的树状串
+var getJsonTree=function(data,parentId){
+  var itemArr=[];
+  for(var i=0;i<data.length;i++){ 
+      var node=data[i];
+      //data.splice(i, 1)
+       if(node.parentId==parentId ){ 
+          var newNode={name:node.id,value:node.value,children:getJsonTree(data,node.id)};
+          itemArr.push(newNode);              
+       }
+  }
+  return itemArr;
+}
+//=================================================================================
+//显示企业族谱信息
+var corpChart = echarts.init(document.getElementById('corpzupu'));
+function corpzupu(){
+	corpChart.showLoading();
+	$.ajax({
+		type : "POST",
+		dataType : "JSON",
+		url : "CompanyServlet",
+		data : {
+			"method" : "corpzupu",
+			"CORP_ORG" : $("#CORP_ORG").val(),
+			"CORP_SEQ_ID" : $("#CORP_SEQ_ID").val(),
+			"CORP_NAME" :  $("#CORP_NAME").val(),
+			
+		},
+		success : function(result){
+			console.log(result);
+			res=getJsonTree(result,"");
+			console.log(res);
+			corpChart.hideLoading();
+			drawCorpTree(res);
+		}
+	});
+}
+
+//显示企业族谱树
+function drawCorpTree(treeData) {
+	var model=corpChart.getModel();
+	corpChart.setOption({
 		tooltip : {
 			trigger : 'item',
 			triggerOn : 'mousemove'
@@ -161,46 +267,39 @@ function drawTree(treeData) {
 	});
 }
 //=================================================================================
-//处理ajax返回的字符串为符合echarts规范的树状串
-var getJsonTree=function(data,parentId){
-  var itemArr=[];
-  for(var i=0;i<data.length;i++){ 
-      var node=data[i];
-      //data.splice(i, 1)
-       if(node.parentId==parentId ){ 
-          var newNode={name:node.id,value:node.value,children:getJsonTree(data,node.id)};
-          itemArr.push(newNode);              
-       }
-  }
-  return itemArr;
-}
-
-//=================================================================================
 //投资族谱中的层级切换
-var step= ['一层','二层','三层','四层','五层','六层'];
-var shuru = $(".shuru");
-var shuru1 = $(".shuru1");
+var step= ['一层','二层','三层','四层','五层','六层','七层','八层','九层','十层'];
+var stockInput = $(".stockInput");
+var conpanyInput = $(".companyInput");
 var i = 0;
 var j = 0;
 function shang(){
   i++;
-  shuru.text(step[i]);
+  stockInput.text(step[i]);
   if(i>=5) i=5;
+  
+  showzupu();
 }
 function xia(){
   i--;
-  shuru.text(step[i]);
+  stockInput.text(step[i]);
   if(i<=0) i=0;
+  
+  showzupu();
 }
 function shang1(){
   j++;
-  shuru1.text(step[j]);
+  conpanyInput.text(step[j]);
   if(j>=5) j=5;
+  
+  showzupu();
 }
 function xia1(){
   j--;
-  shuru1.text(step[j]);
+  conpanyInput.text(step[j]);
   if(j<=0) j=0;
+  
+  showzupu();
 }
 
 //=================================================================================
@@ -223,6 +322,7 @@ function changePage(obj){
 		showzupu();
 		changestatus("none","none","none","block","none","none");
 	}if(obj.innerHTML=="企业族谱"){
+		corpzupu();
 		changestatus("none","none","none","none","block","none");
 	}if(obj.innerHTML=="疑似关系"){
 		changestatus("none","none","none","none","none","block");

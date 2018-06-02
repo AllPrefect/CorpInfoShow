@@ -18,6 +18,7 @@
 }
 #tableWrapper td{
 	width:auto;
+	min-width:130px;
 	text-align: left;
 	padding-left:8px;
 }
@@ -73,7 +74,7 @@
 	margin-left: 5px;
 	color:black;
  }
-.shuru,.shuru1{
+.stockInput,.companyInput{
     display: block;
     width: 50px;
     border: none;
@@ -93,3 +94,11 @@
     display: block;
     padding-top: 5px;
  }
+ 
+ /*企业族谱图显示*/
+ #corpzupu {
+	margin:auto;
+	margin-top:40px;
+	border:1px solid red;
+	background-color: #f1f2f6;
+}

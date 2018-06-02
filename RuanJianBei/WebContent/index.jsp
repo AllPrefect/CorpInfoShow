@@ -126,7 +126,7 @@
 									<td>企业地址：</td>
 									<td colspan="3">${requestScope.companymeg.ADDR}</td>
 								</tr>
-								<tr style="height:80px;">
+								<tr style="height:100px;">
 									<td>经营范围：</td>
 									<td colspan="3">${requestScope.companymeg.FARE_SCOPE }</td>
 								</tr>
@@ -173,7 +173,7 @@
 									<span class="glyphicon glyphicon-triangle-top tfx" onclick="shang()"></span>
 									<span class="glyphicon glyphicon-triangle-bottom bfx" onclick="xia()"></span>
 								</div>
-					    		<div class="shuru">一层</div>
+					    		<div class="stockInput">一层</div>
 					    	</div>
 					   		<span class="desc pull-right">股东层级：</span>
     
@@ -183,11 +183,12 @@
 									<span class="glyphicon glyphicon-triangle-top tfx" onclick="shang1()"></span>
 									<span class="glyphicon glyphicon-triangle-bottom bfx" onclick="xia1()"></span>
 						    	</div>
-						    	<div class="shuru1">一层</div>
+						    	<div class="companyInput">一层</div>
 						    </div>
 						    <span class="desc pull-right">对外投资层级：</span>
 						</div>
-						<div id="showzupu" style="width:800px;height:500px;"></div>
+						<!-- 投资族谱图显示位置 -->
+						<div id="showzupu" style="width:1000px;height:600px;"></div>
 						
 						<div>
 							<input type="hidden" value="${requestScope.companymeg.CORP_NAME }" id="CORP_NAME"/>
@@ -208,7 +209,13 @@
 					</div> <!-- end .page-header -->
 					
 					<div id="outStruct">
-					
+						<!-- 企业族谱图显示位置 -->
+						<div id="corpzupu" style="width:1000px;height:600px;"></div>
+						
+						<div>
+							<input type="hidden" value="${requestScope.companymeg.ORG }" id="CORP_ORG"/>
+							<input type="hidden" value="${requestScope.companymeg.SEQ_ID }" id="CORP_SEQ_ID"/>
+						</div>
 					</div>	
 					
 				</div>

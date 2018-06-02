@@ -47,11 +47,11 @@
 	<div class="signup">
 		<form>
 			<div class="form-group">
-				<input type="text" placeholder="Username">
+				<input type="text" placeholder="账户">
 			</div>
 			<!-- end .form-group -->
 			<div class="form-group">
-				<input type="email" placeholder="Email Address">
+				<input type="email" placeholder="邮箱">
 			</div>
 			<!-- end .form-group -->
 			<div class="text-center">
@@ -59,11 +59,11 @@
 			</div>
 			<!-- end .text-center -->
 			<div class="button-wrapper">
-				<button type="submit" class="button">Register</button>
+				<button type="submit" class="button">注册</button>
 			</div>
 			<div class="text-center">
 				<p>
-					Already have an account? <a href="" class="login-open">Log in</a>
+					Already have an account? <a href="" class="login-open">登录</a>
 				</p>
 				<div class="social">
 					<p>Connect with Social Networks</p>
