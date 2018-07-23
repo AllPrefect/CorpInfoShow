@@ -43,7 +43,7 @@ public class CompanyDaoImpl extends BaseDaoImpl implements CompanyDao {
 		StringBuffer sql=new StringBuffer();
 		PreparedStatement pst=null;
 		ResultSet rs=null;
-		sql.append(" select CORP_NAME from T_CORP ");
+		sql.append(" select CORP_NAME,ORG,ID,SEQ_ID from T_CORP ");
 		sql.append(" where CORP_NAME like ? ");
 		Connection conn=BaseDaoImpl.getConnection();
 		try {
@@ -54,6 +54,9 @@ public class CompanyDaoImpl extends BaseDaoImpl implements CompanyDao {
 				String companyname=rs.getString("CORP_NAME");
 				T_CORPBean company=new T_CORPBean();
 				company.setCORP_NAME(companyname);
+				company.setORG(rs.getInt("ORG"));
+				company.setID(rs.getInt("ID"));
+				company.setSEQ_ID(rs.getInt("SEQ_ID"));
 				companys.add(company);
 			}
 		} catch (SQLException e) {
@@ -69,17 +72,19 @@ public class CompanyDaoImpl extends BaseDaoImpl implements CompanyDao {
 	 * 根据输入的公司名查询公司表信息
 	 */
 	@Override
-	public T_CORPBean searchOneCompany(String name) {
+	public T_CORPBean searchOneCompany(int org,int id,int seq_id) {
 		T_CORPBean company = null;
 		StringBuffer sql=new StringBuffer();
 		PreparedStatement pst=null;
 		ResultSet rs=null;
 		sql.append(" select * from T_CORP ");
-		sql.append(" where CORP_NAME=?");
+		sql.append(" where ORG=? and ID=? and SEQ_ID=?");
 		Connection conn=BaseDaoImpl.getConnection();
 		try {
 			pst=conn.prepareStatement(sql.toString());
-			pst.setString(1, name);
+			pst.setInt(1, org);
+			pst.setInt(2, id);
+			pst.setInt(3, seq_id);
 			rs=pst.executeQuery();
 			while(rs.next()) {
 				int ORG=rs.getInt("ORG");
@@ -162,12 +167,15 @@ public class CompanyDaoImpl extends BaseDaoImpl implements CompanyDao {
 	/*
 	 * 通过公司名，查找向该公司投资的股东
 	 */
-	public ArrayList<ChildrenBean> selectGuDongByCompanyName(String name,String type,String sql){
-		ArrayList<ChildrenBean> GuDong=new ArrayList<>();
+	public ArrayList<ChildrenBean> selectGuDongByCompanyName(String type,String name){
+		ArrayList<ChildrenBean> GuDongRen=new ArrayList<>();
 		PreparedStatement pst=null;
 		ResultSet rs=null;
 		String selectType=type;
 		Connection conn=BaseDaoImpl.getConnection();
+		String sql="select STOCK_NAME,STOCK_PERCENT from T_CORP a,T_CORP_STOCK b,T_M_CORP_CORP_STOCK c " + 
+				" where a.org=c.ORG and a.id=c.ID and a.seq_id=c.SEQ_ID and c.SUB_ID=b.SUB_ID and c.sub_org=b.sub_org " + 
+				" and c.SUB_SEQ_ID=b.SUB_SEQ_ID and a.CORP_NAME=?";
 		try {
 			pst=conn.prepareStatement(sql);
 			pst.setString(1, name);
@@ -176,7 +184,7 @@ public class CompanyDaoImpl extends BaseDaoImpl implements CompanyDao {
 				String STOCK_NAME=rs.getString("STOCK_NAME");
 				String STOCK_PERCENT=rs.getString("STOCK_PERCENT");
 				ChildrenBean children=new ChildrenBean(STOCK_NAME,selectType,STOCK_PERCENT);
-				GuDong.add(children);
+				GuDongRen.add(children);
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -185,118 +193,40 @@ public class CompanyDaoImpl extends BaseDaoImpl implements CompanyDao {
 		}finally {
 			BaseDaoImpl.close(conn, pst, rs);
 		}
-		return GuDong;
-	}
-	/*
-	 * 通过公司名，查找向该公司投资的股东
-	 */
-	public ArrayList<ChildrenBean> selectGuDongRenByCompanyName(String type,String name){
-		ArrayList<ChildrenBean> GuDongRen=new ArrayList<>();
-		String sql="select corp_name,stock_name,b.STOCK_PERCENT from T_CORP a,T_CORP_STOCK b,T_M_CORP_CORP_STOCK c" + 
-				" where a.org=c.ORG and a.id=c.ID and a.seq_id=c.SEQ_ID " + 
-				" and c.SUB_ID=b.SUB_ID and c.sub_org=b.sub_org and c.SUB_SEQ_ID=b.SUB_SEQ_ID and b.CERTIFICATE_TYPE is not NULL and a.CORP_NAME=?";
-		GuDongRen=selectGuDongByCompanyName(name,type,sql);
 		return GuDongRen;
 	}
 	/*
-	 * 通过公司名，查找向该公司投资的公司
+	 * 通过公司名，查找向该公司的对外投资
 	 */
-	public ArrayList<ChildrenBean> selectGuDongComByCompanyName(String type,String name){
+	public ArrayList<ChildrenBean> selectTouZiByCompanyName(String type,String name){
 		ArrayList<ChildrenBean> GuDongCom=new ArrayList<>();
-		String sql="select corp_name,stock_name,b.STOCK_PERCENT from T_CORP a,T_CORP_STOCK b,T_M_CORP_CORP_STOCK c" + 
-				" where a.org=c.ORG and a.id=c.ID and a.seq_id=c.SEQ_ID " + 
-				" and c.SUB_ID=b.SUB_ID and c.sub_org=b.sub_org and c.SUB_SEQ_ID=b.SUB_SEQ_ID and b.CERTIFICATE_TYPE is NULL and a.CORP_NAME=?";
-		GuDongCom=selectGuDongByCompanyName(name,type,sql);
-		return GuDongCom;
-	}
-	/*
-	 * 查找公司股东的投资层级信息
-	 */
-	public ArrayList<ChildrenBean> selectGuDongByname(String companyname,String gudongname,String type){
-		//集合存储所有查询出来的股东数据
-		ArrayList<ChildrenBean> StockData=new ArrayList<>();
 		PreparedStatement pst=null;
 		ResultSet rs=null;
 		String selectType=type;
 		Connection conn=BaseDaoImpl.getConnection();
-		String sql="select stock_name,stock_percent from T_CORP_STOCK where (SUB_ORG,SUB_SEQ_ID) in (" + 
-				"select SUB_ORG,SUB_SEQ_ID from T_M_CORP_CORP_STOCK where (ORG,SEQ_ID) in(" + 
-				"select  ORG,SEQ_ID from T_CORP where OPER_MAN_NAME in(" + 
-				" select stock_name from T_CORP a,T_CORP_STOCK b,T_M_CORP_CORP_STOCK c" + 
-				" where a.org=c.ORG and a.id=c.ID and a.seq_id=c.SEQ_ID and c.SUB_ID=b.SUB_ID and c.sub_org=b.sub_org " + 
-				" and c.SUB_SEQ_ID=b.SUB_SEQ_ID and b.CERTIFICATE_TYPE is not NULL and a.CORP_NAME=?" + 
-				" ) " + 
-				" and OPER_MAN_NAME=?) and rownum=1" + 
-				") and CERTIFICATE_TYPE is not NULL";
+		String sql="select CORP_name,stock_percent from T_CORP c,( " + 
+				" select ORG,ID,SEQ_ID,stock_percent from T_M_CORP_CORP_STOCK a,( " + 
+				" select distinct SUB_ORG,SUB_ID,SUB_SEQ_ID,stock_percent from T_CORP_STOCK " + 
+				" where CERTIFICATE_TYPE = 'null' and stock_name=? " + 
+				" ) b where a.SUB_ORG=b.SUB_ORG and a.SUB_ID=b.SUB_ID and a.SUB_SEQ_ID=b.SUB_SEQ_ID " + 
+				"  ) d where c.ORG=d.ORG and c.ID=d.ID and c.SEQ_ID=c.SEQ_ID";
+		System.out.println("selectGuDongCom   "+sql);
 		try {
 			pst=conn.prepareStatement(sql);
-			pst.setString(1, companyname);
-			pst.setString(2, gudongname);
+			pst.setString(1, name);
 			rs=pst.executeQuery();
 			while(rs.next()) {
-				String STOCK_NAME=rs.getString("STOCK_NAME");
+				String CORP_NAME=rs.getString("CORP_NAME");
 				String STOCK_PERCENT=rs.getString("STOCK_PERCENT");
-				ChildrenBean childrenData=new ChildrenBean(STOCK_NAME,selectType,STOCK_PERCENT);
-				StockData.add(childrenData);
+				ChildrenBean childrenData=new ChildrenBean(CORP_NAME,selectType,STOCK_PERCENT);
+				GuDongCom.add(childrenData);
 			}
-			System.out.println("查出来的股东人   "+StockData);
+			System.out.println("查出来的对外投资   "+GuDongCom);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return StockData;
-	}
-	
-	/*
-	 * 通过ORG/SEQ_ID，查找向该公司投资的股东
-	 */
-	public ArrayList<ChildrenBean> selectGuDongRenByCompany(String type,String name,int org,int seq_id){
-		ArrayList<ChildrenBean> GuDongRen=new ArrayList<>();
-		String sql="select corp_name,stock_name,b.STOCK_PERCENT from T_CORP a,T_CORP_STOCK b,T_M_CORP_CORP_STOCK c" + 
-				" where a.org=c.ORG and a.id=c.ID and a.seq_id=c.SEQ_ID " + 
-				" and c.SUB_ID=b.SUB_ID and c.sub_org=b.sub_org and c.SUB_SEQ_ID=b.SUB_SEQ_ID and b.CERTIFICATE_TYPE is not NULL and a.ORG=? and a.seq_id=?";
-		GuDongRen=selectGuDongByCompany(name,type,sql,org,seq_id);
-		return GuDongRen;
-	}
-	/*
-	 * 通过ORG/SEQ_ID，查找向该公司投资的公司
-	 */
-	public ArrayList<ChildrenBean> selectGuDongComByCompany(String type,String name,int org,int seq_id){
-		ArrayList<ChildrenBean> GuDongCom=new ArrayList<>();
-		String sql="select corp_name,stock_name,b.STOCK_PERCENT from T_CORP a,T_CORP_STOCK b,T_M_CORP_CORP_STOCK c" + 
-				" where a.org=c.ORG and a.id=c.ID and a.seq_id=c.SEQ_ID " + 
-				" and c.SUB_ID=b.SUB_ID and c.sub_org=b.sub_org and c.SUB_SEQ_ID=b.SUB_SEQ_ID and b.CERTIFICATE_TYPE is NULL and a.ORG=? and a.seq_id=?";
-		GuDongCom=selectGuDongByCompany(name,type,sql,org,seq_id);
 		return GuDongCom;
-	}
-	/*
-	 * 通过ORG/SEQ_ID，查找向该公司投资的股东
-	 */
-	public ArrayList<ChildrenBean> selectGuDongByCompany(String name,String type,String sql,int org,int seq_id){
-		ArrayList<ChildrenBean> GuDong=new ArrayList<>();
-		PreparedStatement pst=null;
-		ResultSet rs=null;
-		String selectType=type;
-		Connection conn=BaseDaoImpl.getConnection();
-		try {
-			pst=conn.prepareStatement(sql);
-			pst.setInt(1, org);
-			pst.setInt(2, seq_id);
-			rs=pst.executeQuery();
-			while(rs.next()) {
-				String STOCK_NAME=rs.getString("STOCK_NAME");
-				String STOCK_PERCENT=rs.getString("STOCK_PERCENT");
-				ChildrenBean children=new ChildrenBean(STOCK_NAME,selectType,STOCK_PERCENT);
-				GuDong.add(children);
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}finally {
-			BaseDaoImpl.close(conn, pst, rs);
-		}
-		return GuDong;
 	}
 	
 }

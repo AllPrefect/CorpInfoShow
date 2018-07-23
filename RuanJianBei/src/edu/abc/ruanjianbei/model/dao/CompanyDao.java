@@ -14,24 +14,14 @@ public interface CompanyDao extends BaseDao{
 	/*
 	 * 通过公司名查询公司表的信息
 	 */
-	public T_CORPBean searchOneCompany(String name);
+	public T_CORPBean searchOneCompany(int org,int id,int seq_id);
 	/*
-	 * 通过公司名，查找向该公司投资的股东
+	 * 通过公司名，查找向该公司的股东
 	 */
-	public ArrayList<ChildrenBean> selectGuDongByCompanyName(String name,String type,String sql);
+	public ArrayList<ChildrenBean> selectGuDongByCompanyName(String name,String type);
 	/*
-	 * 通过公司名，查找向该公司投资的股东
+	 * 通过公司名，查找向该公司的对外投资
 	 */
-	public ArrayList<ChildrenBean> selectGuDongRenByCompanyName(String name,String type);
-	/*
-	 * 通过公司名，查找向该公司投资的公司
-	 */
-	public ArrayList<ChildrenBean> selectGuDongComByCompanyName(String name,String type);
-	/*
-	 * 查找公司股东的投资层级信息
-	 */
-	public ArrayList<ChildrenBean> selectGuDongByname(String companyname,String gudongname,String type);
-	
-	public ArrayList<ChildrenBean> selectGuDongRenByCompany(String type,String name,int org,int seq_id);
-	public ArrayList<ChildrenBean> selectGuDongComByCompany(String type,String name,int org,int seq_id);
+	public ArrayList<ChildrenBean> selectTouZiByCompanyName(String name,String type);
+
 }

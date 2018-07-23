@@ -2,8 +2,9 @@ package edu.abc.ruanjianbei.control;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,25 +15,40 @@ import javax.servlet.http.HttpServletResponse;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import edu.abc.ruanjianbei.model.bean.ChildrenBean;
+import edu.abc.ruanjianbei.model.bean.Graphdata;
+import edu.abc.ruanjianbei.model.bean.GuQuan;
+import edu.abc.ruanjianbei.model.bean.Guquanxinxi;
+import edu.abc.ruanjianbei.model.bean.Links;
 import edu.abc.ruanjianbei.model.bean.T_CORPBean;
 import edu.abc.ruanjianbei.model.dao.CompanyDao;
 import edu.abc.ruanjianbei.model.dao.CompanyDaoImpl;
+import edu.abc.ruanjianbei.model.dao.CompanyGuQuanDao;
+import edu.abc.ruanjianbei.model.dao.CompanyGuQuanDaoImpl;
+import edu.abc.ruanjianbei.model.dao.CompanyGuanXiDao;
+import edu.abc.ruanjianbei.model.dao.CompanyGuanXiDaoImpl;
+import edu.abc.ruanjianbei.model.dao.CompanyPertainsDao;
+import edu.abc.ruanjianbei.model.dao.CompanyPertainsDaoImp;
 
 @WebServlet("/CompanyServlet")
 public class CompanyServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
     private CompanyDao companydao;
-    
+    private CompanyPertainsDao companypertainsdao;
+    private CompanyGuanXiDao companyguanxi;
+    private CompanyGuQuanDao guquandao;
     public CompanyServlet() {
         super();
         companydao=new CompanyDaoImpl();
+        companypertainsdao=new CompanyPertainsDaoImp();
+        companyguanxi=new CompanyGuanXiDaoImpl();
+        guquandao=new CompanyGuQuanDaoImpl();
         // TODO Auto-generated constructor stub
     }
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
 		response.setCharacterEncoding("UTF-8");
 		String methodName = request.getParameter("method");
-		System.out.println("CompanyServlet:"+methodName);
+		//System.out.println("CompanyServlet:"+methodName);
 		switch (methodName) {
 		case "searchAll":
 			searchAll(request,response);
@@ -43,23 +59,31 @@ public class CompanyServlet extends HttpServlet {
 		case "touzizupu":
 			touzizupu(request,response);
 			break;
-		case "showrelation":
-			showrelation(request,response);
+		case "yisiguanxi":
+			yisiguanxi(request,response);
 			break;
 		case "corpzupu":
 			corpzupu(request,response);
+			break;
+		case "guquanjiegou":
+			guquanjiegou(request,response);
 			break;
 		default:
 			break;
 		}
 	}
 	/*
-	 * 根据输入的公司名查询公司表信息
+	 * 根据输入的公司名\主键查询公司表信息
 	 */
 	protected void searchAll(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
 		String name = request.getParameter("CorpName");
-		T_CORPBean companymeg=companydao.searchOneCompany(name);
-		request.setAttribute("companymeg", companymeg);
+		String org=request.getParameter("ORG");
+		String id=request.getParameter("ID");
+		String seq_id=request.getParameter("SEQ_ID");
+		if(org!=""&&id!=""&&seq_id!="") {
+			T_CORPBean companymeg=companydao.searchOneCompany(Integer.valueOf(org),Integer.valueOf(id),Integer.valueOf(seq_id));
+			request.setAttribute("companymeg", companymeg);
+		}
 		request.getRequestDispatcher("/index.jsp").forward(request, response);
 	}
 	/*
@@ -82,99 +106,39 @@ public class CompanyServlet extends HttpServlet {
 	protected void touzizupu(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		String CORP_NAME = request.getParameter("CORP_NAME");
-		System.out.println("投资族谱查询公司名称："+CORP_NAME);
+		String org=request.getParameter("ORG");
+		String id=request.getParameter("ID");
+		String seq_id=request.getParameter("SEQ_ID");
+		//System.out.println("投资族谱查询公司名称："+CORP_NAME+","+org+","+id+","+seq_id);
+		
 		String companyLevel=request.getParameter("companyLevel");
 		String stockLevel=request.getParameter("stockLevel");
-		System.out.println("股东层级："+stockLevel);
-		System.out.println("对外投资层级："+companyLevel);
+		//System.out.println("股东层级："+stockLevel);
+		//System.out.println("对外投资层级："+companyLevel);
 
 		//存储查询到的所有数据
 		ArrayList<ChildrenBean> allData=new ArrayList<>();
-		//回馈前端页面，是否还有层级关系
-		ChildrenBean flagcom=new ChildrenBean();
 		
 		//添加节点数据
 		ArrayList<ChildrenBean> node=levelNode(CORP_NAME);
 		allData.addAll(node);
 		
-		//查询个人股东层级信息
+		//查询股东层级信息
 		ArrayList<ChildrenBean> firstStockLevelData=new ArrayList<>();
 		//存储每层查出来的个人股东数据
 		ArrayList<ChildrenBean> stockData=new ArrayList<>();
-		firstStockLevelData=companydao.selectGuDongRenByCompanyName("股东",CORP_NAME);
-		stockData=searchStock(firstStockLevelData,CORP_NAME, firstStockLevelData, Integer.parseInt(stockLevel));
+		firstStockLevelData=companydao.selectGuDongByCompanyName("股东",CORP_NAME);
+		stockData=searchStock(firstStockLevelData,firstStockLevelData, Integer.parseInt(stockLevel));
 		allData.addAll(stockData);
 		
-		//查询公司股东层级信息
+		//查询对外投资层级信息
 		ArrayList<ChildrenBean> firstCompayLevelData=new ArrayList<>();
 		//存储每层查出来的公司股东数据
 		ArrayList<ChildrenBean> companyData=new ArrayList<>();
-		firstCompayLevelData =companydao.selectGuDongComByCompanyName("对外投资",CORP_NAME);
+		firstCompayLevelData =companydao.selectTouZiByCompanyName("对外投资",CORP_NAME);
 		companyData=searchCompany(firstCompayLevelData,firstCompayLevelData, Integer.parseInt(companyLevel));
 		allData.addAll(companyData);
 		
-//		switch(companyLevel) 
-//		{
-//			case "一层":
-//				//通过树根的公司名查出的所用该公司的股东
-//				firstCompayLevelData =companydao.selectGuDongComByCompanyName("对外投资",CORP_NAME);
-//				ArrayList<ChildrenBean> node=levelNode(CORP_NAME);
-//				allData.addAll(node);
-//				allData.addAll(firstCompayLevelData);
-//				break;
-//			case "二层":
-//				ArrayList<ChildrenBean> secondCompanyLevelData=new ArrayList<>();
-//				//第二层显示的数据要带上第一层所有对外投资公司的数据
-//				firstCompayLevelData = companydao.selectGuDongComByCompanyName("对外投资",CORP_NAME);
-//				allData.addAll(levelNode(CORP_NAME));
-//				//查询第二层股东的数据
-//				ArrayList<ChildrenBean> CompayLevelData=companydao.selectGuDongComByCompanyName("对外投资",CORP_NAME);
-//				//对集合中每一个公司查询出该公司对外投资的公司
-//				for (ChildrenBean childrenBean : CompayLevelData) {
-//					secondCompanyLevelData=companydao.selectGuDongComByCompanyName(childrenBean.getId(), childrenBean.getId());
-//					System.out.println("查询到的对外投资第二层数据："+secondCompanyLevelData.toString());
-//					//在第一层数据的基础上，加上第二层对外投资的公司的数据
-//					firstCompayLevelData.addAll(secondCompanyLevelData);
-//				}
-//				//判断是否没有更多的数据了，是，则在数据中添加标志
-//				if(secondCompanyLevelData.isEmpty()) {
-//					flagcom.setValue("false");
-//				}
-//				allData.addAll(firstCompayLevelData);
-//				break;
-//		}
-//		switch(stockLevel) {
-//			case "一层":
-//				firstStockLevelData=companydao.selectGuDongRenByCompanyName("股东",CORP_NAME);
-//				allData.addAll(firstStockLevelData);
-//				break;
-//			case "二层":
-//				ArrayList<ChildrenBean> secondStockLevelData=new ArrayList<>();
-//				firstStockLevelData=companydao.selectGuDongRenByCompanyName("股东",CORP_NAME);
-//				ArrayList<ChildrenBean> StockLevelData=firstStockLevelData;
-//				for (ChildrenBean childrenBean : StockLevelData) {
-//					secondStockLevelData=companydao.selectGuDongByname(CORP_NAME,childrenBean.getId() , childrenBean.getId());
-//					firstStockLevelData.addAll(secondStockLevelData);
-//				}
-//				if(secondStockLevelData.isEmpty()) {
-//					ChildrenBean flag=new ChildrenBean("false", "", "");
-//					firstStockLevelData.add(flag);
-//				}
-//				allData.addAll(firstStockLevelData);
-//				firstStockLevelData=companydao.selectGuDongRenByCompanyName("股东",CORP_NAME);
-//				stockData=searchStock(CORP_NAME, firstStockLevelData, 1);
-//				allData.addAll(firstStockLevelData);
-//				allData.addAll(stockData);
-//				break;
-//			case "三层":
-//				firstStockLevelData=companydao.selectGuDongRenByCompanyName("股东",CORP_NAME);
-//				stockData=searchStock(CORP_NAME, firstStockLevelData, 2);
-//				allData.addAll(firstStockLevelData);
-//				allData.addAll(stockData);
-//				break;
-//		}
-		
-//		allData.add(flagcom);
 		ToJSONString(response, allData);
 		
 	}
@@ -222,7 +186,7 @@ public class CompanyServlet extends HttpServlet {
 		// TODO Auto-generated method stub
 		ObjectMapper mapper=new ObjectMapper();
 		String jsonString =mapper.writeValueAsString(stockData);
-		System.out.println("查询出的json数据"+jsonString);
+		//System.out.println("查询出的json数据"+jsonString);
 		//返回jsonArray数据
 		response.setCharacterEncoding("UTF-8");
 		response.setContentType("text/javascript");
@@ -236,20 +200,21 @@ public class CompanyServlet extends HttpServlet {
 		// TODO Auto-generated method stub
 		String CORP_ORG = request.getParameter("CORP_ORG");
 		String CORP_SEQ_ID = request.getParameter("CORP_SEQ_ID");
-		System.out.println("企业族谱："+CORP_ORG+","+CORP_SEQ_ID);
+		//System.out.println("企业族谱："+CORP_ORG+","+CORP_SEQ_ID);
 		String CORP_NAME = request.getParameter("CORP_NAME");
-		System.out.println("企业族谱公司名："+CORP_NAME);
+		//System.out.println("企业族谱公司名："+CORP_NAME);
 		//存储查询出来的所有信息
 		ArrayList<ChildrenBean> allData=new ArrayList<>();
 		
 		
-		ArrayList<ChildrenBean> CompayLevelData=companydao.selectGuDongComByCompany("对外投资", CORP_NAME, Integer.parseInt(CORP_ORG), Integer.parseInt(CORP_SEQ_ID));
-		ArrayList<ChildrenBean> StockLevelData=companydao.selectGuDongRenByCompany("股东", CORP_NAME, Integer.parseInt(CORP_ORG), Integer.parseInt(CORP_SEQ_ID));
-		
-		System.out.println("第一层股东数据"+StockLevelData);
-		
-		allData.addAll(searchStock(StockLevelData,CORP_NAME,StockLevelData,2));
-		allData.addAll(searchCompany(CompayLevelData,CompayLevelData,3));
+		ArrayList<ChildrenBean> CompayLevelData=companydao.selectTouZiByCompanyName("对外投资", CORP_NAME);
+		ArrayList<ChildrenBean> StockLevelData=companydao.selectGuDongByCompanyName("股东", CORP_NAME);
+
+		ArrayList<ChildrenBean> corpMember=companypertainsdao.selectMemberByCompany("高管",CORP_NAME,Integer.parseInt(CORP_ORG),Integer.parseInt(CORP_SEQ_ID));
+		//System.out.println("第一层股东数据"+StockLevelData);
+		allData.addAll(corpMember);
+		allData.addAll(searchStockCorp(StockLevelData,StockLevelData,10));
+		allData.addAll(searchCompanyCorp(CompayLevelData,CompayLevelData,10));
 		//添加节点信息
 		allData.addAll(corpLevelNode(CORP_NAME));
 		
@@ -257,9 +222,9 @@ public class CompanyServlet extends HttpServlet {
 		
 	}
 	/*
-	 * 通过递归查询个人股东层级数据
+	 * 通过递归查询股东层级数据(企业族谱)
 	 */
-	public ArrayList<ChildrenBean> searchStock(ArrayList<ChildrenBean> stockLevelData,String CORP_NAME,ArrayList<ChildrenBean> leveldata,int level){
+	public ArrayList<ChildrenBean> searchStockCorp(ArrayList<ChildrenBean> stockLevelData,ArrayList<ChildrenBean> leveldata,int level){
 		//存储一层的信息
 		ArrayList<ChildrenBean> levelData=new ArrayList<>();
 		//存储一层内单个信息
@@ -268,16 +233,62 @@ public class CompanyServlet extends HttpServlet {
 			System.out.println("递归结束!");
 		}else {
 			for (ChildrenBean childrenBean : leveldata) {
-				levelDataOne=companydao.selectGuDongByname(CORP_NAME,childrenBean.getId() , childrenBean.getId());
+				levelDataOne=companydao.selectGuDongByCompanyName(childrenBean.getId(), childrenBean.getId());
 				levelData.addAll(levelDataOne);
 			}
-			stockLevelData.addAll(levelData);
-			searchStock(stockLevelData,CORP_NAME,levelData, (level-1));
+				stockLevelData.addAll(levelData);
+				searchStockCorp(stockLevelData,levelData, (level-1));
 		}
 		return stockLevelData;
 	}
 	/*
-	 * 通过递归查询公司股东层级数据
+	 * 通过递归查询对外投资层级数据(企业族谱)
+	 */
+	public ArrayList<ChildrenBean> searchCompanyCorp(ArrayList<ChildrenBean> companyLevelData,ArrayList<ChildrenBean> leveldata,int level){
+		ArrayList<ChildrenBean> levelData=new ArrayList<>();
+		ArrayList<ChildrenBean> levelDataOne=new ArrayList<>();
+		//当递归到第二层结束
+		if(level<=0) {
+			System.out.println("递归结束!");
+		}else {
+			for (ChildrenBean childrenBean : leveldata) {
+				levelDataOne=companydao.selectTouZiByCompanyName(childrenBean.getId(), childrenBean.getId());
+				levelData.addAll(levelDataOne);
+			}
+				companyLevelData.addAll(levelData);
+				searchCompanyCorp(companyLevelData,levelData,(level-1));
+		}
+		
+		return companyLevelData;
+	}
+	/*
+	 * 通过递归查询股东层级数据
+	 */
+	public ArrayList<ChildrenBean> searchStock(ArrayList<ChildrenBean> stockLevelData,ArrayList<ChildrenBean> leveldata,int level){
+		//存储一层的信息
+		ArrayList<ChildrenBean> levelData=new ArrayList<>();
+		//存储一层内单个信息
+		ArrayList<ChildrenBean> levelDataOne=new ArrayList<>();
+		if(level<=0) {
+			System.out.println("递归结束!");
+		}else {
+			for (ChildrenBean childrenBean : leveldata) {
+				levelDataOne=companydao.selectGuDongByCompanyName(childrenBean.getId(), childrenBean.getId());
+				levelData.addAll(levelDataOne);
+			}
+			if(levelData.isEmpty()) {
+				//回馈前端页面，是否还有层级关系
+				ChildrenBean flag=new ChildrenBean("stockLevelWarning","","没有更多股东层级了");
+				stockLevelData.add(flag);
+			}else {
+				stockLevelData.addAll(levelData);
+				searchStock(stockLevelData,levelData, (level-1));
+			}
+		}
+		return stockLevelData;
+	}
+	/*
+	 * 通过递归查询对外投资层级数据
 	 */
 	public ArrayList<ChildrenBean> searchCompany(ArrayList<ChildrenBean> companyLevelData,ArrayList<ChildrenBean> leveldata,int level){
 		ArrayList<ChildrenBean> levelData=new ArrayList<>();
@@ -287,22 +298,121 @@ public class CompanyServlet extends HttpServlet {
 			System.out.println("递归结束!");
 		}else {
 			for (ChildrenBean childrenBean : leveldata) {
-				levelDataOne=companydao.selectGuDongComByCompanyName(childrenBean.getId(), childrenBean.getId());
+				levelDataOne=companydao.selectTouZiByCompanyName(childrenBean.getId(), childrenBean.getId());
 				levelData.addAll(levelDataOne);
 			}
-			companyLevelData.addAll(levelData);
-			searchCompany(companyLevelData,levelData,(level-1));
+			if(levelData.isEmpty()) {
+				//回馈前端页面，是否还有层级关系
+				ChildrenBean flag=new ChildrenBean("companyLevelWarning","","没有更多对外投资层级了");
+				companyLevelData.add(flag);
+			}else {
+				companyLevelData.addAll(levelData);
+				searchCompany(companyLevelData,levelData,(level-1));
+			}
 		}
-		
 		return companyLevelData;
 	}
 	
+
 	/*
 	 * 显示公司，股东之间的疑似关系
 	 */
-	protected void showrelation(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
+	protected void yisiguanxi(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String CORP_NAME = request.getParameter("CORP_NAME");
+		//System.out.println("疑似关系主公司："+CORP_NAME);
+		ArrayList<Links> graphlinks=new ArrayList<>();
+		ArrayList<Links> GuDongTouZi=companyguanxi.selectTouZiOutside(CORP_NAME);
+		ArrayList<Links> GuDongRenZhi=companyguanxi.selectGuDongRenZhiOutside(CORP_NAME);
+		ArrayList<Links> GaoGuanRenZhi=companyguanxi.selectGaoGuanRenZhiOutside(CORP_NAME);
+		//System.out.println("GuDongTouZi "+GuDongTouZi);
+		//System.out.println("GuDongRenZhi "+GuDongRenZhi);
+		//System.out.println("GaoGuanRenZhi "+GaoGuanRenZhi);
+		graphlinks.addAll(GuDongTouZi);
+		graphlinks.addAll(GuDongRenZhi);
+		graphlinks.addAll(GaoGuanRenZhi);
+		HashSet<Graphdata> TouZiGuDong=new HashSet<>();
+		HashSet<Graphdata> RenZhiGuDong=new HashSet<>();
+		HashSet<Graphdata> RenZhiGaoGuan=new HashSet<>();
+		for (Links link : GuDongTouZi) {
+			String source=link.getSource();
+			String target=link.getTarget();
+			Graphdata gudong=new Graphdata(source, 0, "true");
+			Graphdata gongsi=new Graphdata(target, 1, "true");
+			TouZiGuDong.add(gudong);
+			RenZhiGuDong.add(gongsi);
+		}
+		for (Links link : GuDongRenZhi) {
+			String source=link.getSource();
+			String target=link.getTarget();
+			Graphdata gudong=new Graphdata(source, 0, "true");
+			Graphdata gongsi=new Graphdata(target, 1, "true");
+			TouZiGuDong.add(gudong);
+			RenZhiGuDong.add(gongsi);
+		}
+		for (Links link : GaoGuanRenZhi) {
+			String source=link.getSource();
+			String target=link.getTarget();
+			Graphdata gaoguan=new Graphdata(source, 2, "true");
+			Graphdata gongsi=new Graphdata(target, 1, "true");
+			RenZhiGaoGuan.add(gaoguan);
+			RenZhiGuDong.add(gongsi);
+		}
+		//System.out.println("%%% "+TouZiGuDong);
+		//System.out.println("%%% "+RenZhiGuDong);
+		//System.out.println("%%% "+RenZhiGaoGuan);
 		
+		TouZiGuDong.addAll(RenZhiGuDong);
+		TouZiGuDong.addAll(RenZhiGaoGuan);
+		
+		Object[] alldata= {graphlinks,TouZiGuDong};
+		ObjectMapper mapper=new ObjectMapper();
+		String jsonString =mapper.writeValueAsString(alldata);
+		//System.out.println("查询出的json数据"+jsonString);
+		//返回jsonArray数据
+		response.setCharacterEncoding("UTF-8");
+		response.setContentType("text/javascript");
+		response.getWriter().print(jsonString);
+	}
+	/*
+	 * 根据输入的公司名查询公司的股权结构
+	 */
+	protected void guquanjiegou(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
+		String name = request.getParameter("CORP_NAME");
+		GuQuan guquandata=guquandao.Selectguquan(name);
+		sortbypercent(guquandata.getGudongxinxi());
+		ArrayList<Guquanxinxi> comguquan=guquandao.Selectcomguquan(name);
+		sortbypercent(comguquan);
+		guquandata.setComxinxi(comguquan);
+		ObjectMapper mapper=new ObjectMapper();
+		String jsonString =mapper.writeValueAsString(guquandata);
+		//System.out.println("查询出的股权json数据"+jsonString);
+		//返回jsonArray数据
+		response.setCharacterEncoding("UTF-8");
+		response.setContentType("text/javascript");
+		response.getWriter().print(jsonString);
+	}
+	/*
+	 * 将股东的信息通过所占百分比进行降序排序
+	 */
+	public void sortbypercent(ArrayList<Guquanxinxi> guquan) {
+		Collections.sort(guquan, new Comparator<Guquanxinxi>() {
+			@Override
+			public int compare(Guquanxinxi o1, Guquanxinxi o2) {
+				String guquanbili1=o1.getGuquanbili();
+				String guquanbili2=o2.getGuquanbili();
+				//System.out.println("股权比例比较："+guquanbili1);
+				//System.out.println("股权比例比较："+guquanbili2);
+				double bili1=Double.valueOf(guquanbili1.substring(0, guquanbili1.lastIndexOf("%")));
+				double bili2=Double.valueOf(guquanbili2.substring(0, guquanbili2.lastIndexOf("%")));
+				//System.out.println("股权比例转换后："+bili1+","+bili2);
+				if(bili1>bili2) {
+					return -1;
+				}else {
+					return 1;
+				}
+			}
+			
+		});
 	}
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
